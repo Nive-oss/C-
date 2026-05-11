@@ -1,0 +1,39 @@
+#include <iostream>
+#include <cmath>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int largestPalindrome(int n) {
+        // Base case for n=1
+        if (n == 1) return 9;
+
+        // Upper and lower bounds for n-digit numbers
+        long upper = pow(10, n) - 1;
+        long lower = pow(10, n - 1);
+
+        // Construct palindromes from largest to smallest
+        for (long h = upper; h >= lower; h--) {
+            // Build the palindrome (e.g., if h=99, palindrome=9999)
+            string s = to_string(h);
+            string rs = s;
+            reverse(rs.begin(), rs.end());
+            long p = stol(s + rs);
+
+            // Check if this palindrome can be factored into two n-digit numbers
+            // We only need to check factors 'i' where i*i >= p
+            for (long i = upper; i * i >= p; i--) {
+                if (p % i == 0) {
+                    long j = p / i;
+                    // Since i starts from upper, j will be <= i. 
+                    // We only need to ensure j is at least an n-digit number.
+                    if (j >= lower) return p % 1337;
+                }
+            }
+        }
+        return -1;
+    }
+};
