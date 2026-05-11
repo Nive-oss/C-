@@ -1,0 +1,34 @@
+class Solution {
+public:
+    int findKthNumber(int n, int k) {
+        long curr = 1;
+        k--; // Start from the first number (1), so we need k-1 more steps
+
+        while (k > 0) {
+            long steps = countSteps(n, curr, curr + 1);
+            if (steps <= k) {
+                // Move to the next sibling (e.g., from 1 to 2)
+                curr++;
+                k -= steps;
+            } else {
+                // Move down to the first child (e.g., from 1 to 10)
+                curr *= 10;
+                k--;
+            }
+        }
+        return (int)curr;
+    }
+
+private:
+    long countSteps(long n, long n1, long n2) {
+        long steps = 0;
+        while (n1 <= n) {
+            // Count nodes at the current level
+            steps += min(n + 1, n2) - n1;
+            // Move to the next level down
+            n1 *= 10;
+            n2 *= 10;
+        }
+        return steps;
+    }
+};
