@@ -1,0 +1,47 @@
+#include <string>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    int getMaxRepetitions(string s1, int n1, string s2, int n2) {
+        int len1 = s1.length(), len2 = s2.length();
+        // record[index_in_s2] = {count_of_s1_used, count_of_s2_formed}
+        unordered_map<int, pair<int, int>> record;
+        int s1_count = 0, s2_count = 0, j = 0;
+
+        while (s1_count < n1) {
+            s1_count++;
+            for (int i = 0; i < len1; ++i) {
+                if (s1[i] == s2[j]) {
+                    j++;
+                    if (j == len2) {
+                        s2_count++;
+                        j = 0;
+                    }
+                }
+            }
+
+            // Check if we have seen this s2 index at the end of an s1 before
+            if (record.count(j)) {
+                auto [prev_s1_count, prev_s2_count] = record[j];
+                
+                // Calculate cycle parameters
+                int s1_in_cycle = s1_count - prev_s1_count;
+                int s2_in_cycle = s2_count - prev_s2_count;
+                
+                // How many full cycles can we skip?
+                int remaining_s1 = n1 - s1_count;
+                int num_cycles = remaining_s1 / s1_in_cycle;
+                
+                s1_count += num_cycles * s1_in_cycle;
+                s2_count += num_cycles * s2_in_cycle;
+            }
+            record[j] = {s1_count, s2_count};
+        }
+
+        return s2_count / n2;
+    }
+};
