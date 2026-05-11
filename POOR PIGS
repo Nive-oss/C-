@@ -1,0 +1,17 @@
+#include <cmath>
+
+class Solution {
+public:
+    int poorPigs(int buckets, int minutesToDie, int minutesToTest) {
+        // Calculate how many testing rounds are possible
+        int rounds = minutesToTest / minutesToDie;
+        
+        // Each pig has (rounds + 1) possible outcomes
+        int states = rounds + 1;
+        
+        // We need to find 'pigs' such that states^pigs >= buckets
+        // Using logarithms: pigs * log(states) >= log(buckets)
+        // pigs = ceil(log(buckets) / log(states))
+        return ceil(log2(buckets) / log2(states));
+    }
+};
