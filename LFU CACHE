@@ -1,0 +1,70 @@
+#include <unordered_map>
+#include <list>
+
+using namespace std;
+
+struct Node {
+    int key, value, freq;
+    Node(int k, int v, int f) : key(k), value(v), freq(f) {}
+};
+
+class LFUCache {
+    int cap;
+    int minFreq;
+    unordered_map<int, list<Node>::iterator> keyTable;
+    unordered_map<int, list<Node>> freqTable;
+
+    void update(list<Node>::iterator it) {
+        int key = it->key;
+        int value = it->value;
+        int freq = it->freq;
+        
+        // Remove from current frequency list
+        freqTable[freq].erase(it);
+        if (freqTable[freq].empty()) {
+            freqTable.erase(freq);
+            if (minFreq == freq) minFreq++;
+        }
+        
+        // Push to next frequency list
+        freqTable[freq + 1].push_front(Node(key, value, freq + 1));
+        keyTable[key] = freqTable[freq + 1].begin();
+    }
+
+public:
+    LFUCache(int capacity) {
+        cap = capacity;
+        minFreq = 0;
+    }
+    
+    int get(int key) {
+        if (cap == 0 || keyTable.find(key) == keyTable.end()) return -1;
+        auto it = keyTable[key];
+        int val = it->value;
+        update(it);
+        return val;
+    }
+    
+    void put(int key, int value) {
+        if (cap == 0) return;
+        
+        if (keyTable.find(key) != keyTable.end()) {
+            auto it = keyTable[key];
+            it->value = value;
+            update(it);
+        } else {
+            if (keyTable.size() == cap) {
+                // Evict the LRU node from the minFreq list
+                auto nodeToEvict = freqTable[minFreq].back();
+                keyTable.erase(nodeToEvict.key);
+                freqTable[minFreq].pop_back();
+                if (freqTable[minFreq].empty()) freqTable.erase(minFreq);
+            }
+            
+            // Insert new node with frequency 1
+            minFreq = 1;
+            freqTable[1].push_front(Node(key, value, 1));
+            keyTable[key] = freqTable[1].begin();
+        }
+    }
+};
