@@ -1,0 +1,45 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    string smallestGoodBase(string n) {
+        long long num = stoll(n);
+        
+        // Iterate from maximum possible number of digits down to 2
+        for (int m = 60; m >= 2; m--) {
+            // Estimate k using (m-1)-th root of num
+            long long k = pow(num, 1.0 / (m - 1));
+            
+            if (k > 1) {
+                long long sum = 0;
+                long long p = 1;
+                bool overflow = false;
+                
+                // Calculate the geometric sum: 1 + k + k^2 + ... + k^(m-1)
+                for (int i = 0; i < m; i++) {
+                    sum += p;
+                    if (i < m - 1) {
+                        // Check for potential overflow before multiplying
+                        if (p > num / k) {
+                            overflow = true;
+                            break;
+                        }
+                        p *= k;
+                    }
+                }
+                
+                if (!overflow && sum == num) {
+                    return to_string(k);
+                }
+            }
+        }
+        
+        // Default smallest good base is n-1 (representing "11" in base n-1)
+        return to_string(num - 1);
+    }
+};
