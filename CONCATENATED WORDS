@@ -1,0 +1,42 @@
+#include <vector>
+#include <string>
+#include <unordered_set>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+    unordered_set<string> wordSet;
+    unordered_map<string, bool> memo;
+
+    bool canForm(string word) {
+        if (memo.count(word)) return memo[word];
+        
+        for (int i = 1; i < word.length(); i++) {
+            string left = word.substr(0, i);
+            string right = word.substr(i);
+            
+            // If left part exists and (right part exists OR right can be further split)
+            if (wordSet.count(left)) {
+                if (wordSet.count(right) || canForm(right)) {
+                    return memo[word] = true;
+                }
+            }
+        }
+        return memo[word] = false;
+    }
+
+public:
+    vector<string> findAllConcatenatedWordsInADict(vector<string>& words) {
+        wordSet = unordered_set<string>(words.begin(), words.end());
+        vector<string> result;
+        
+        for (const string& w : words) {
+            memo.clear(); // Reset memo for each new word check
+            if (canForm(w)) {
+                result.push_back(w);
+            }
+        }
+        return result;
+    }
+};
