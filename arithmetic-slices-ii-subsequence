@@ -1,0 +1,35 @@
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    int numberOfArithmeticSlices(vector<int>& nums) {
+        int n = nums.size();
+        int total_count = 0;
+        
+        // dp[i][diff] stores the number of arithmetic subsequences 
+        // ending at index i with common difference 'diff'.
+        vector<unordered_map<long long, int>> dp(n);
+
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < i; ++j) {
+                // Use long long to prevent overflow during subtraction
+                long long diff = (long long)nums[i] - nums[j];
+                
+                // Get the number of subsequences ending at j with this diff
+                int count_at_j = dp[j].count(diff) ? dp[j][diff] : 0;
+                
+                // Add those to the total (these are sequences of length >= 3)
+                total_count += count_at_j;
+                
+                // Update dp[i][diff]: 
+                // 1 (the pair nums[j], nums[i]) + sequences already ending at j
+                dp[i][diff] += (count_at_j + 1);
+            }
+        }
+
+        return total_count;
+    }
+};
